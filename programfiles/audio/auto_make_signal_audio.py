@@ -19,8 +19,8 @@ GestureList = {
 }
 
 HzNumberList = {
-    20: "C:/Users/rushi/myresearch/my_research_b4_data/20kHz.wav",
-    21: "C:/Users/rushi/myresearch/my_research_b4_data/21kHz.wav"
+    20: "C:/Users/rushi/research_dataandprogram/my_research_b4_data/20kHz.wav",
+    21: "C:/Users/rushi/research_dataandprogram/my_research_b4_data/21kHz.wav"
 }
 
 # ---------- 入力受付 ----------
@@ -118,7 +118,7 @@ while Attempts <= 20:
                vmin=-28, vmax=0)  # 色の範囲を手動で指定
     plt.axis('off')
     plt.tight_layout(pad=0)
-    full_path = os.path.join("C:/Users/rushi/myresearch/my_research_b4_data/test_audio_spectrogram_data/", SpectrogramName)
+    full_path = os.path.join("C:/Users/rushi/research_dataandprogram/my_research_b4_data/test_audio_spectrogram_data/", SpectrogramName)
     os.makedirs(os.path.dirname(full_path), exist_ok=True)
     plt.savefig(full_path, bbox_inches='tight', pad_inches=0)
     plt.show()

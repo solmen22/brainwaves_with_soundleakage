@@ -8,8 +8,8 @@ from tensorflow.keras.preprocessing import image
 #python 3.10.11で実行
 
 #画像サイズの決定
-img_height = 1000
-img_width = 1000
+img_height = 224
+img_width = 224
 #バッチサイズ(1度に処理する画像の数)
 batch_size = 32
 Hz = "20kHz"
@@ -61,7 +61,7 @@ model.compile(optimizer='adam',     #高性能な最適化アルゴリズムを�
               loss='sparse_categorical_crossentropy',       #クラスラベルが整数であるときに使用する損失関数
               metrics=['accuracy'])     #精度を評価指標とする
 
-epochs = 10     #学習を10回繰り返す
+epochs = 30     #学習を10回繰り返す
 
 history = model.fit(        #トレーニングデータと検証データを使用して10エポックで学習
     train_ds,
