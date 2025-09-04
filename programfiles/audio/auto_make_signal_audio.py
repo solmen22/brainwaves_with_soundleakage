@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import spectrogram,butter,filtfilt
 import os
+import time
+import threading
 
 # ジェスチャと周波数の選択肢
 GestureList = {
@@ -47,12 +49,19 @@ def bandstop_filter(before_cut_audio_data, SamplingRate, lowcut, highcut, order 
     b,a = butter(order, [Low, High], btype ='bandstop')      #oderはフィルタ次数
     filtered = filtfilt(b, a, before_cut_audio_data)   #位相遅延なしでフィルタ処理を行う
     return filtered
-    
+#並列処理によって時間遅延に対応する関数
+def delayed_print_and_time(msg,delay):
+    time.sleep(delay)
+    print(msg)
+    execute_time.append(int(time.time() * 1000))
 
 # ---------- 試行開始 ----------
 Attempts = 1  # 試行番号（最大20）
 
 while Attempts <= 20:
+    
+    execute_time = []
+    
     SpectrogramName = f"{gesture_prefix}{Attempts}.png"
 
     # 音声ファイル読み込み
@@ -62,7 +71,7 @@ while Attempts <= 20:
     SamplingRate = wf.getframerate()    #サンプリングレートの取得
     Channel = wf.getnchannels()     #チャンネル数(左右同じ音を出すか、左右違う音を出すか)
     SampleWidth = wf.getsampwidth()
-    Duration = 2.2     #録音時間
+    Duration = 3.0     #録音時間
     Chunk = 1024      #バッファサイズの指定
 
     # PyAudio設定
@@ -76,25 +85,30 @@ while Attempts <= 20:
                           rate=SamplingRate,
                           input=True,
                           frames_per_buffer=Chunk)
-
-    print(f"\n[試行 {Attempts}/20] 再生と録音を開始...")
+    
+    #並列処理によって録音の開始時間に合わせて表示を実行する
+    threading.Thread(target=delayed_print_and_time, args=(f"\n[試行 {Attempts}/20] 再生と録音を開始...", 1)).start()
+    
+    
+    
     RecordedData = []
     total_chunks = int(SamplingRate / Chunk * Duration)
-
-    for _ in range(total_chunks):
+    
+    for i in range(total_chunks):
         data_chunk = wf.readframes(Chunk)   #バッファ分の出力音声データを抽出する
         if len(data_chunk) == 0:
             break
         output_stream.write(data_chunk)     #バッファ分を出力する
+        
         input_data = input_stream.read(Chunk)   #バッファ分の録音をする
         RecordedData.append(input_data)     #録音したデータを保存する
-
+    execute_time.append(int(time.time() * 1000))
     print("録音完了。スペクトログラム画像を生成中...")
 
 
     before_cut_audio_data = np.frombuffer(b''.join(RecordedData), dtype=np.int16)      #録音データをnumpy配列に変換する
     audio_data = bandstop_filter(before_cut_audio_data, SamplingRate = SamplingRate, lowcut = HzNumber*1000-10, highcut = HzNumber*1000 + 10)
-    cut_samples = int(SamplingRate * 0.2)   #最初の0.4秒をカット
+    cut_samples = int(SamplingRate * 1.0)   #最初の0.4秒をカット
     audio_data = audio_data[cut_samples:]
    
     # スペクトログラム計算
@@ -134,6 +148,8 @@ while Attempts <= 20:
     input_stream.close()
     p.terminate()
     wf.close()
+    
+    print("start time: %d \n end time: %d" % (execute_time[0], execute_time[1]))
 
     # 次の試行か再試行か確認
     while True:
