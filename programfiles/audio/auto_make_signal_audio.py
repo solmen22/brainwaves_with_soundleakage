@@ -18,7 +18,12 @@ GestureList = {
     6: "Twist-OF/Twist-OF_try",
     7: "Twist-TF/Twist-TF_try",
     8: "Glasses-on/Glasses-on_try",
-    9: "Glasses-off/Glasses-off_try"
+    9: "Glasses-off/Glasses-off_try",
+    10: "controlhair/controlhair_try",
+    11: "controlharau/controlharau_try",
+    12: "hair/hair_try",
+    13: "harau/harau_try"
+    
 }
 
 HzNumberList = {
