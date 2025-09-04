@@ -6,6 +6,7 @@ from scipy.signal import spectrogram,butter,filtfilt
 import os
 import time
 import threading
+import csv
 
 # ジェスチャと周波数の選択肢
 GestureList = {
@@ -24,6 +25,8 @@ HzNumberList = {
     20: "C:/Users/rushi/research_dataandprogram/my_research_b4_data/20kHz.wav",
     21: "C:/Users/rushi/research_dataandprogram/my_research_b4_data/21kHz.wav"
 }
+
+csv_dir = "C:/Users/rushi/research_dataandprogram/my_research_b4_data/test_audio_spectrogram_data/"
 
 # ---------- 入力受付 ----------
 print("【ジェスチャを選択してください】")
@@ -54,6 +57,19 @@ def delayed_print_and_time(msg,delay):
     time.sleep(delay)
     print(msg)
     execute_time.append(int(time.time() * 1000))
+#開始時刻と終了時刻のunixtime[ms]を保存するための関数
+def save_execute_time_csv(execute_time, gesture_prefix, attempt_num, csv_dir):
+    
+    os.makedirs(csv_dir, exist_ok=True)
+    csv_path = os.path.join(csv_dir, f"{gesture_prefix}_time.csv")
+
+    # 既存ファイルがあれば追記、なければヘッダー付きで作成
+    file_exists = os.path.exists(csv_path)
+    with open(csv_path, 'a', newline='') as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(["Attempt", "StartTime_ms", "EndTime_ms"])
+        writer.writerow([attempt_num, execute_time[0], execute_time[1]])
 
 # ---------- 試行開始 ----------
 Attempts = 1  # 試行番号（最大20）
@@ -150,6 +166,8 @@ while Attempts <= 20:
     wf.close()
     
     print("start time: %d \n end time: %d" % (execute_time[0], execute_time[1]))
+    # CSVに出力
+    save_execute_time_csv(execute_time, gesture_prefix.split('/')[0], Attempts)
 
     # 次の試行か再試行か確認
     while True:
